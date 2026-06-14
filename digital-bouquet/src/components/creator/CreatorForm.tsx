@@ -19,6 +19,11 @@ const sampleLetter =
 
 const getSpotifyTrackId = (url: string) => url.match(/track\/([a-zA-Z0-9]+)/)?.[1] ?? '';
 
+const getGiftBaseUrl = () => {
+  const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/+$/, '');
+  return configuredUrl || window.location.origin;
+};
+
 export default function CreatorForm() {
   const [receiverName, setReceiverName] = useState('');
   const [senderName, setSenderName] = useState('');
@@ -117,7 +122,7 @@ export default function CreatorForm() {
     }
 
     const encoded = encodePayload(payload);
-    setGeneratedUrl(`${window.location.origin}/?payload=${encodeURIComponent(encoded)}`);
+    setGeneratedUrl(`${getGiftBaseUrl()}/?payload=${encodeURIComponent(encoded)}`);
     setCopyLabel('Copy');
   };
 
