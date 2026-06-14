@@ -906,7 +906,9 @@ img {
 
 .map-polaroid {
   width: clamp(158px, 21vw, 252px);
-  padding: clamp(10px, 1.7vw, 18px) clamp(10px, 1.7vw, 18px) clamp(34px, 4.5vw, 54px);
+  display: grid;
+  gap: 6px;
+  padding: clamp(10px, 1.7vw, 18px);
   transform-style: preserve-3d;
 }
 
@@ -944,27 +946,35 @@ img {
 }
 
 .map-polaroid p {
-  position: absolute;
-  right: 16px;
-  bottom: 15px;
-  left: 16px;
-  margin: 0;
-  overflow: hidden;
+  margin: 8px 3px 0;
+  overflow: visible;
   color: #34484a;
   font-family: var(--font-hand);
-  font-size: clamp(14px, 1.6vw, 20px);
+  font-size: clamp(14px, 1.35vw, 19px);
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+  text-align: left;
+  text-wrap: balance;
+  white-space: normal;
+}
+
+.map-polaroid.caption-balanced p {
+  font-size: clamp(12px, 1.12vw, 16px);
   line-height: 1.05;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+}
+
+.map-polaroid.caption-dense p {
+  font-size: clamp(10px, 0.9vw, 13px);
+  line-height: 1.02;
 }
 
 .map-polaroid span {
-  position: absolute;
-  right: 16px;
-  bottom: 4px;
+  justify-self: end;
+  margin: -3px 3px 0 0;
   color: rgba(52, 72, 74, 0.46);
   font-family: var(--font-hand);
-  font-size: 13px;
+  font-size: clamp(10px, 0.95vw, 13px);
+  line-height: 1;
 }
 
 .slot-a {
@@ -1492,7 +1502,8 @@ img {
 
   .map-polaroid {
     width: clamp(126px, 39vw, 174px);
-    padding: 9px 9px 34px;
+    gap: 4px;
+    padding: 9px;
   }
 
   .map-photo-shell {
@@ -1500,14 +1511,21 @@ img {
   }
 
   .map-polaroid p {
-    right: 10px;
-    bottom: 12px;
-    left: 10px;
-    font-size: 14px;
+    margin-top: 6px;
+    font-size: 13px;
+  }
+
+  .map-polaroid.caption-balanced p {
+    font-size: 11px;
+  }
+
+  .map-polaroid.caption-dense p {
+    font-size: 9.5px;
   }
 
   .map-polaroid span {
-    display: none;
+    margin-top: -2px;
+    font-size: 9px;
   }
 
   .slot-a {

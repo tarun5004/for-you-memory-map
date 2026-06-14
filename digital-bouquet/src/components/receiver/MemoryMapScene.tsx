@@ -61,9 +61,13 @@ function MapPhoto({
   index: number;
   senderName: string;
 }) {
+  const caption = photo.caption || `memory ${index + 1}`;
+  const captionDensity =
+    caption.length > 92 ? 'caption-dense' : caption.length > 48 ? 'caption-balanced' : 'caption-short';
+
   return (
     <motion.article
-      className={`map-polaroid ${slot.className}`}
+      className={`map-polaroid ${slot.className} ${captionDensity}`}
       initial={{ opacity: 0, y: 42, scale: 0.92, rotate: slot.rotate - 5 }}
       style={{ rotate: slot.rotate }}
       transition={{ delay: slot.delay, type: 'spring', stiffness: 72, damping: 13 }}
@@ -85,7 +89,7 @@ function MapPhoto({
           <div className="map-photo-placeholder">memory</div>
         )}
       </div>
-      <p>{photo.caption || `memory ${index + 1}`}</p>
+      <p>{caption}</p>
       <span>{senderName ? `from ${senderName}` : 'for you'}</span>
     </motion.article>
   );
