@@ -1,18 +1,20 @@
-# For You — Cinematic Love Letter
+# For You - Cinematic Love Letter
 
-A frontend-only Next.js app for creating a private, encoded digital love letter link.
+Frontend-only Next.js app for building a private, encoded digital gift link.
 
 ## Features
 
-- Creator mode at `/`
-- Receiver mode at `/?payload=...`
-- Cloudinary unsigned photo uploads
-- Captioned Polaroid memory scenes
-- Spotify embed scene
-- Optional PIN gate
-- Scroll-snap cinematic receiver experience
+- Creator mode at `/`.
+- Receiver mode at `/?payload=...`.
+- Cloudinary unsigned photo uploads.
+- Up to six uploaded photos.
+- Two-page memory-map collage with scattered Polaroid cards.
+- Spotify and YouTube embeds inside the collage pages.
+- Optional 4-digit PIN gate.
+- Three.js/CSS particles with lightweight fallback behavior.
+- QR code and copyable generated link.
 
-## Setup
+## Environment
 
 Copy `.env.example` to `.env.local` or `.env` and fill in an unsigned Cloudinary preset:
 
@@ -21,9 +23,25 @@ NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name_here
 NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your_unsigned_preset_here
 ```
 
-Then run:
+## Development
 
 ```bash
 npm install
 npm run dev
 ```
+
+Open `http://localhost:3000`.
+
+## Checks
+
+```bash
+npm run lint
+npm run build
+```
+
+## Notes
+
+- No backend or database is required.
+- Gift data is compressed into the generated URL.
+- Photos are uploaded to the configured Cloudinary account.
+- Keep real `.env` files out of git.
