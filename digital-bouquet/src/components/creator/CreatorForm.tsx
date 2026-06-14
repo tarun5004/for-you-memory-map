@@ -1,6 +1,6 @@
 'use client';
 
-import { ChangeEvent, FormEvent, useMemo, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { encodePayload } from '@/utils/codec';
 import { extractYouTubeId } from '@/utils/media';
@@ -14,8 +14,22 @@ type DraftPhoto = GiftPhoto & {
   errorMessage?: string;
 };
 
+type StoredCreatorDraft = {
+  receiverName: string;
+  senderName: string;
+  spotifyUrl: string;
+  youtubeUrl: string;
+  letter: string;
+  pin: string;
+  photos: GiftPhoto[];
+  generatedUrl: string;
+  savedAt: number;
+};
+
 const sampleLetter =
   'I made this little place so our memories could live somewhere soft.\n\nEvery photo here is a tiny proof that ordinary days can turn into something I keep returning to.\n\nThank you for being you.';
+
+const CREATOR_DRAFT_KEY = 'for-you-creator-draft-v1';
 
 const getSpotifyTrackId = (url: string) => url.match(/track\/([a-zA-Z0-9]+)/)?.[1] ?? '';
 
@@ -24,7 +38,44 @@ const getGiftBaseUrl = () => {
   return configuredUrl || window.location.origin;
 };
 
+const createPhotoId = () => `saved-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+const canPersistPhotoUrl = (url: string) => /^https?:\/\//i.test(url);
+
+const normalizeStoredPhotos = (photos: StoredCreatorDraft['photos'] = []) =>
+  photos
+    .filter((photo) => photo && typeof photo.url === 'string' && canPersistPhotoUrl(photo.url))
+    .slice(0, 6)
+    .map((photo) => ({
+      id: createPhotoId(),
+      url: photo.url,
+      caption: typeof photo.caption === 'string' ? photo.caption : '',
+    }));
+
+const readStoredDraft = (): StoredCreatorDraft | null => {
+  try {
+    const raw = window.localStorage.getItem(CREATOR_DRAFT_KEY);
+    if (!raw) return null;
+    const draft = JSON.parse(raw) as Partial<StoredCreatorDraft>;
+    return {
+      receiverName: typeof draft.receiverName === 'string' ? draft.receiverName : '',
+      senderName: typeof draft.senderName === 'string' ? draft.senderName : '',
+      spotifyUrl: typeof draft.spotifyUrl === 'string' ? draft.spotifyUrl : '',
+      youtubeUrl: typeof draft.youtubeUrl === 'string' ? draft.youtubeUrl : '',
+      letter: typeof draft.letter === 'string' && draft.letter.trim() ? draft.letter : sampleLetter,
+      pin: typeof draft.pin === 'string' ? draft.pin.replace(/\D/g, '').slice(0, 4) : '',
+      photos: Array.isArray(draft.photos) ? draft.photos : [],
+      generatedUrl: typeof draft.generatedUrl === 'string' ? draft.generatedUrl : '',
+      savedAt: typeof draft.savedAt === 'number' ? draft.savedAt : Date.now(),
+    };
+  } catch {
+    return null;
+  }
+};
+
 export default function CreatorForm() {
+  const draftReadyRef = useRef(false);
+  const restoredDraftRef = useRef(false);
   const [receiverName, setReceiverName] = useState('');
   const [senderName, setSenderName] = useState('');
   const [spotifyUrl, setSpotifyUrl] = useState('');
@@ -35,6 +86,7 @@ export default function CreatorForm() {
   const [generatedUrl, setGeneratedUrl] = useState('');
   const [copyLabel, setCopyLabel] = useState('Copy');
   const [formError, setFormError] = useState('');
+  const [draftStatus, setDraftStatus] = useState('');
   const { uploadImage, uploading, error } = useCloudinary();
 
   const trackId = useMemo(() => getSpotifyTrackId(spotifyUrl), [spotifyUrl]);
@@ -56,6 +108,51 @@ export default function CreatorForm() {
     }),
     [letter, photos, pin, receiverName, senderName, spotifyUrl, youtubeId, youtubeUrl],
   );
+
+  useEffect(() => {
+    const draft = readStoredDraft();
+    if (!draft) {
+      draftReadyRef.current = true;
+      return;
+    }
+
+    setReceiverName(draft.receiverName);
+    setSenderName(draft.senderName);
+    setSpotifyUrl(draft.spotifyUrl);
+    setYoutubeUrl(draft.youtubeUrl);
+    setLetter(draft.letter);
+    setPin(draft.pin);
+    setPhotos(normalizeStoredPhotos(draft.photos));
+    setGeneratedUrl(draft.generatedUrl);
+    setDraftStatus('Last draft restored from this browser.');
+    restoredDraftRef.current = true;
+    draftReadyRef.current = true;
+  }, []);
+
+  useEffect(() => {
+    if (!draftReadyRef.current) return;
+
+    const draft: StoredCreatorDraft = {
+      receiverName,
+      senderName,
+      spotifyUrl,
+      youtubeUrl,
+      letter,
+      pin,
+      generatedUrl,
+      savedAt: Date.now(),
+      photos: photos
+        .filter((photo) => !photo.uploading && !photo.failed && canPersistPhotoUrl(photo.url))
+        .map(({ url, caption }) => ({ url, caption })),
+    };
+
+    try {
+      window.localStorage.setItem(CREATOR_DRAFT_KEY, JSON.stringify(draft));
+      if (!draftStatus && !restoredDraftRef.current) setDraftStatus('Draft autosaved in this browser.');
+    } catch {
+      setDraftStatus('Draft autosave is unavailable in this browser.');
+    }
+  }, [draftStatus, generatedUrl, letter, photos, pin, receiverName, senderName, spotifyUrl, youtubeUrl]);
 
   const handleFiles = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []).slice(0, Math.max(0, 6 - photos.length));
@@ -90,6 +187,12 @@ export default function CreatorForm() {
 
   const removePhoto = (id: string) => {
     setPhotos((current) => current.filter((photo) => photo.id !== id));
+  };
+
+  const clearDraft = () => {
+    window.localStorage.removeItem(CREATOR_DRAFT_KEY);
+    setGeneratedUrl('');
+    setDraftStatus('Saved draft cleared.');
   };
 
   const generate = (event: FormEvent<HTMLFormElement>) => {
@@ -144,10 +247,18 @@ export default function CreatorForm() {
         <div className="creator-heading">
           <p className="creator-kicker">Cinematic love letter builder</p>
           <h1>Make a memory box they can scroll through.</h1>
-          <p>
+          <p className="creator-subcopy">
             Add up to six photos, captions, a Spotify track, and a final handwritten note. Everything is packed into one
             encoded share link.
           </p>
+          {draftStatus && (
+            <p className="draft-status">
+              {draftStatus}
+              <button type="button" onClick={clearDraft}>
+                Clear saved draft
+              </button>
+            </p>
+          )}
         </div>
 
         <form className="creator-form" onSubmit={generate}>

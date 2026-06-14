@@ -148,12 +148,34 @@ img {
   line-height: 1.08;
 }
 
-.creator-heading p:last-child {
+.creator-subcopy {
   max-width: 680px;
   margin: 16px 0 0;
   color: rgba(74, 55, 64, 0.72);
   font-size: 16px;
   line-height: 1.7;
+}
+
+.draft-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  max-width: 680px;
+  margin: 14px 0 0;
+  color: rgba(74, 55, 64, 0.62);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.draft-status button {
+  border: 1px solid rgba(74, 55, 64, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--rose);
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .creator-form,
@@ -1516,7 +1538,7 @@ img {
     font-size: 29px;
   }
 
-  .creator-heading p:last-child,
+  .creator-subcopy,
   .field input,
   .field textarea {
     font-size: 15px;
