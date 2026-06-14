@@ -1,0 +1,22 @@
+# dependencies
+**/node_modules/
+
+# Next/Vite build output
+**/.next/
+**/dist/
+**/out/
+
+# environment and secrets
+**/.env
+**/.env.local
+**/.env.*.local
+!**/.env.example
+
+# logs and generated verification artifacts
+*.log
+**/.playwright-cli/
+**/output/
+
+# editor/system
+.DS_Store
+Thumbs.db
