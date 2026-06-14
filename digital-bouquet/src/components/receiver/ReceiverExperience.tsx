@@ -4,13 +4,11 @@ import dynamic from 'next/dynamic';
 import { useEffect, useMemo, useState } from 'react';
 import IntroScene from './IntroScene';
 import LetterScene from './LetterScene';
-import MemoryScene from './MemoryScene';
-import MusicScene from './MusicScene';
+import MemoryMapScene from './MemoryMapScene';
 import PinGate from './PinGate';
 import ScrollProgress from './ScrollProgress';
-import YouTubeScene from './YouTubeScene';
 import type { GiftPayload, GiftPhoto } from '@/types/gift';
-import { extractYouTubeId } from '@/utils/media';
+import { extractSpotifyTrackId, extractYouTubeId } from '@/utils/media';
 
 const PetalParticles = dynamic(() => import('./PetalParticles'), { ssr: false });
 
@@ -28,25 +26,45 @@ const normalizePhotos = (photos: GiftPayload['photos'] = []): GiftPhoto[] =>
     })
     .filter((photo) => Boolean(photo.url));
 
-const getSpotifyTrackId = (url: string) => url.match(/track\/([a-zA-Z0-9]+)/)?.[1] ?? '';
-
 export default function ReceiverExperience({ data }: ReceiverExperienceProps) {
   const [unlocked, setUnlocked] = useState(!data.pin);
   const [activeIndex, setActiveIndex] = useState(0);
   const [ambienceOn, setAmbienceOn] = useState(false);
   const photos = useMemo(() => normalizePhotos(data.photos), [data.photos]);
-  const hasMusic = Boolean(getSpotifyTrackId(data.spotifyUrl || ''));
+  const spotifyTrackId = useMemo(() => extractSpotifyTrackId(data.spotifyUrl || ''), [data.spotifyUrl]);
+  const hasMusic = Boolean(spotifyTrackId);
   const youtubeId = useMemo(() => data.youtubeId || extractYouTubeId(data.youtubeUrl || ''), [data.youtubeId, data.youtubeUrl]);
+  const memoryPages = useMemo(() => {
+    const splitIndex = Math.ceil(photos.length / 2);
+    const pages = [
+      {
+        id: 'memories-1',
+        label: 'Memory map 1',
+        pageIndex: 0,
+        photos: photos.slice(0, splitIndex),
+        youtubeId,
+        spotifyUrl: photos.length === 0 && hasMusic && !youtubeId ? data.spotifyUrl : undefined,
+      },
+      {
+        id: 'memories-2',
+        label: 'Memory map 2',
+        pageIndex: 1,
+        photos: photos.slice(splitIndex),
+        spotifyUrl: hasMusic && (photos.length > 0 || Boolean(youtubeId)) ? data.spotifyUrl : undefined,
+        youtubeId: null,
+      },
+    ];
+
+    return pages.filter((page) => photos.length > 0 || page.photos.length > 0 || page.spotifyUrl || page.youtubeId);
+  }, [data.spotifyUrl, hasMusic, photos, youtubeId]);
 
   const scenes = useMemo(
     () => [
       { id: 'intro', label: 'Intro' },
-      ...photos.map((_, index) => ({ id: `memory-${index + 1}`, label: `Memory ${index + 1}` })),
-      ...(hasMusic ? [{ id: 'music', label: 'Music' }] : []),
-      ...(youtubeId ? [{ id: 'youtube', label: 'YouTube' }] : []),
+      ...memoryPages.map((page) => ({ id: page.id, label: page.label })),
       { id: 'letter', label: 'Letter' },
     ],
-    [hasMusic, photos, youtubeId],
+    [memoryPages],
   );
 
   useEffect(() => {
@@ -63,10 +81,8 @@ export default function ReceiverExperience({ data }: ReceiverExperienceProps) {
 
   const particleConfig = useMemo(() => {
     const active = scenes[activeIndex]?.id || 'intro';
-    if (active === 'music') return { density: 18, variant: 'bubbles' as const };
-    if (active === 'youtube') return { density: 12, variant: 'petals' as const };
+    if (active.startsWith('memories-')) return { density: 24, variant: 'bubbles' as const };
     if (active === 'letter') return { density: 30, variant: 'petals' as const };
-    if (active.includes('memory-1') || active.includes('memory-5')) return { density: 26, variant: 'petals' as const };
     return { density: 14, variant: 'petals' as const };
   }, [activeIndex, scenes]);
 
@@ -110,17 +126,17 @@ export default function ReceiverExperience({ data }: ReceiverExperienceProps) {
         {ambienceOn ? 'sound on' : 'muted'}
       </button>
       <IntroScene receiverName={data.receiverName} />
-      {photos.map((photo, index) => (
-        <MemoryScene
-          index={index}
-          key={`${photo.url}-${index}`}
-          photo={photo}
+      {memoryPages.map((page) => (
+        <MemoryMapScene
+          id={page.id}
+          key={page.id}
+          pageIndex={page.pageIndex}
+          photos={page.photos}
           senderName={data.senderName}
-          total={photos.length}
+          spotifyUrl={page.spotifyUrl}
+          youtubeId={page.youtubeId}
         />
       ))}
-      {hasMusic && <MusicScene spotifyUrl={data.spotifyUrl} />}
-      {youtubeId && <YouTubeScene youtubeId={youtubeId} />}
       <LetterScene letter={data.letter} senderName={data.senderName} />
     </main>
   );

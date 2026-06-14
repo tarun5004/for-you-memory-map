@@ -10,3 +10,7 @@ export function extractYouTubeId(url: string): string | null {
 
   return null;
 }
+
+export function extractSpotifyTrackId(url: string): string | null {
+  return url.match(/open\.spotify\.com\/track\/([a-zA-Z0-9]+)/)?.[1] ?? null;
+}

@@ -160,9 +160,8 @@ export default function IntroScene({ receiverName }: IntroSceneProps) {
   const lineTwo = useTypewriter('I made something for you...', 1500);
   const scrollToFirstScene = () => {
     const target =
-      document.getElementById('memory-1') ||
-      document.getElementById('music') ||
-      document.getElementById('youtube') ||
+      document.getElementById('memories-1') ||
+      document.getElementById('memories-2') ||
       document.getElementById('letter');
     target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
