@@ -1,0 +1,17 @@
+# Build Plan
+- [x] Next.js scaffold + Tailwind + Framer Motion + R3F + lz-string installed
+- [x] Fonts loaded (Dancing Script, Fredoka, Quicksand, Caveat)
+- [x] codec.ts (encode/decode payload)
+- [x] PolaroidFrame.tsx (matches reference image exactly)
+- [x] PetalParticles.tsx (Three.js floating petals/bokeh — used on every scene)
+- [x] IntroScene.tsx (typewriter opening)
+- [x] MemoryScene.tsx (per-photo scroll section with rose-bed bg + polaroid)
+- [x] MusicScene.tsx (Spotify card + spinning vinyl)
+- [x] LetterScene.tsx (final handwritten letter + envelope seal)
+- [x] ScrollProgress.tsx (side dot navigation)
+- [x] ReceiverExperience.tsx (orchestrates all scenes with scroll-snap)
+- [x] CreatorForm.tsx (upload photos, write captions, letter, Spotify, generate link)
+- [x] Cloudinary upload hook
+- [x] Full responsive (mobile-first, this opens on phones)
+- [x] Reduced-motion fallback
+- [x] End-to-end test: create → link → open → full experience plays
