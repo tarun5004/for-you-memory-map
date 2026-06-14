@@ -51,16 +51,22 @@ export default function PolaroidFrame({
     >
       <div className="polaroid-tape" />
       <div className="polaroid-photo-shell">
-        <motion.div className="polaroid-photo-motion" style={{ y: imageY }}>
-          <Image
-            src={imageUrl}
-            alt={caption}
-            fill
-            sizes="(max-width: 640px) 280px, 340px"
-            className="polaroid-photo"
-            unoptimized
-          />
-        </motion.div>
+        {imageUrl ? (
+          <motion.div className="polaroid-photo-motion" style={{ y: imageY }}>
+            <Image
+              src={imageUrl}
+              alt={caption}
+              fill
+              sizes="(max-width: 640px) 280px, 340px"
+              className="polaroid-photo"
+              unoptimized
+            />
+          </motion.div>
+        ) : (
+          <div className="polaroid-placeholder">
+            <span>photo coming soon</span>
+          </div>
+        )}
       </div>
 
       {showHeart && (

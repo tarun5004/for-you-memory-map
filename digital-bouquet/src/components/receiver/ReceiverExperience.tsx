@@ -8,7 +8,9 @@ import MemoryScene from './MemoryScene';
 import MusicScene from './MusicScene';
 import PinGate from './PinGate';
 import ScrollProgress from './ScrollProgress';
+import YouTubeScene from './YouTubeScene';
 import type { GiftPayload, GiftPhoto } from '@/types/gift';
+import { extractYouTubeId } from '@/utils/media';
 
 const PetalParticles = dynamic(() => import('./PetalParticles'), { ssr: false });
 
@@ -31,22 +33,26 @@ const getSpotifyTrackId = (url: string) => url.match(/track\/([a-zA-Z0-9]+)/)?.[
 export default function ReceiverExperience({ data }: ReceiverExperienceProps) {
   const [unlocked, setUnlocked] = useState(!data.pin);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [ambienceOn, setAmbienceOn] = useState(false);
   const photos = useMemo(() => normalizePhotos(data.photos), [data.photos]);
   const hasMusic = Boolean(getSpotifyTrackId(data.spotifyUrl || ''));
+  const youtubeId = useMemo(() => data.youtubeId || extractYouTubeId(data.youtubeUrl || ''), [data.youtubeId, data.youtubeUrl]);
 
   const scenes = useMemo(
     () => [
       { id: 'intro', label: 'Intro' },
       ...photos.map((_, index) => ({ id: `memory-${index + 1}`, label: `Memory ${index + 1}` })),
       ...(hasMusic ? [{ id: 'music', label: 'Music' }] : []),
+      ...(youtubeId ? [{ id: 'youtube', label: 'YouTube' }] : []),
       { id: 'letter', label: 'Letter' },
     ],
-    [hasMusic, photos],
+    [hasMusic, photos, youtubeId],
   );
 
   const particleConfig = useMemo(() => {
     const active = scenes[activeIndex]?.id || 'intro';
     if (active === 'music') return { density: 18, variant: 'bubbles' as const };
+    if (active === 'youtube') return { density: 12, variant: 'petals' as const };
     if (active === 'letter') return { density: 30, variant: 'petals' as const };
     if (active.includes('memory-1') || active.includes('memory-5')) return { density: 26, variant: 'petals' as const };
     return { density: 14, variant: 'petals' as const };
@@ -79,6 +85,18 @@ export default function ReceiverExperience({ data }: ReceiverExperienceProps) {
     <main className="story-shell">
       <PetalParticles density={particleConfig.density} variant={particleConfig.variant} />
       <ScrollProgress activeIndex={activeIndex} scenes={scenes} />
+      <div className="scene-counter">
+        {activeIndex + 1} / {scenes.length}
+      </div>
+      <button
+        className="ambience-toggle"
+        type="button"
+        aria-pressed={ambienceOn}
+        aria-label={ambienceOn ? 'Mute ambience' : 'Unmute ambience'}
+        onClick={() => setAmbienceOn((current) => !current)}
+      >
+        {ambienceOn ? 'sound on' : 'muted'}
+      </button>
       <IntroScene receiverName={data.receiverName} />
       {photos.map((photo, index) => (
         <MemoryScene
@@ -90,6 +108,7 @@ export default function ReceiverExperience({ data }: ReceiverExperienceProps) {
         />
       ))}
       {hasMusic && <MusicScene spotifyUrl={data.spotifyUrl} />}
+      {youtubeId && <YouTubeScene youtubeId={youtubeId} />}
       <LetterScene letter={data.letter} senderName={data.senderName} />
     </main>
   );

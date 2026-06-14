@@ -14,6 +14,8 @@
   --text-c: #2e1f3d;
   --bg-d: linear-gradient(160deg, #d4f1f4 0%, #a6e3e9 50%, #71c9ce 100%);
   --text-d: #1a4d52;
+  --bg-e: linear-gradient(160deg, #e8f0e3 0%, #c5d9c0 100%);
+  --text-e: #243a2c;
   --cream: #fffaf4;
   --ink: #332630;
   --rose: #d94f5c;
@@ -278,6 +280,7 @@ img {
 }
 
 .spotify-preview,
+.youtube-preview,
 .spotify-card {
   overflow: hidden;
   border-radius: 18px;
@@ -289,6 +292,34 @@ img {
 .spotify-card iframe {
   display: block;
   border: 0;
+}
+
+.youtube-preview {
+  display: grid;
+  grid-template-columns: 118px 1fr;
+  align-items: center;
+  gap: 14px;
+  padding: 10px;
+}
+
+.youtube-preview img {
+  width: 118px;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.youtube-preview span {
+  display: block;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.youtube-preview small {
+  color: rgba(74, 55, 64, 0.58);
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .primary-action {
@@ -333,7 +364,7 @@ img {
 .story-shell {
   position: relative;
   height: 100dvh;
-  overflow-y: auto;
+  overflow-y: scroll;
   overflow-x: hidden;
   scroll-behavior: smooth;
   scroll-snap-type: y mandatory;
@@ -378,6 +409,11 @@ img {
   background: var(--bg-d);
 }
 
+.palette-e {
+  --scene-text: var(--text-e);
+  background: var(--bg-e);
+}
+
 .rose-bed::before,
 .rose-bed::after {
   position: absolute;
@@ -412,6 +448,10 @@ img {
   inset: 0;
   z-index: 1;
   pointer-events: none;
+}
+
+.particle-layer canvas {
+  pointer-events: none !important;
 }
 
 .css-particles {
@@ -491,6 +531,7 @@ img {
 
 .memory-content,
 .music-content,
+.youtube-content,
 .letter-content {
   display: grid;
   justify-items: center;
@@ -549,6 +590,19 @@ img {
   object-fit: cover;
 }
 
+.polaroid-placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 28% 24%, rgba(255, 255, 255, 0.42), transparent 28%),
+    linear-gradient(135deg, #d94f5c, #8e1537);
+  color: #fff;
+  font-family: var(--font-hand);
+  font-size: 26px;
+}
+
 .polaroid-heart {
   position: absolute;
   bottom: 18px;
@@ -580,6 +634,38 @@ img {
   margin: 0 0 28px;
   font-family: var(--font-script);
   font-size: 42px;
+}
+
+.youtube-title {
+  margin: 0 0 28px;
+  font-family: var(--font-script);
+  font-size: 42px;
+  color: currentColor;
+}
+
+.youtube-frame {
+  position: relative;
+  width: min(100%, 480px);
+  padding: 16px 16px 34px;
+  border-radius: 4px;
+  background: #fafafa;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  transform-style: preserve-3d;
+  rotate: -1deg;
+}
+
+.youtube-video-shell {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 6px solid #fff;
+  background: #fff;
+}
+
+.youtube-video-shell iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
 }
 
 .vinyl {
@@ -671,6 +757,48 @@ img {
   opacity: 0.68;
 }
 
+.replay-button {
+  margin-top: 18px;
+  border: 1px solid rgba(255, 245, 245, 0.72);
+  border-radius: 999px;
+  padding: 10px 15px;
+  background: rgba(255, 245, 245, 0.16);
+  color: #fff5f5;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  backdrop-filter: blur(10px);
+}
+
+.scene-counter,
+.ambience-toggle {
+  position: fixed;
+  z-index: 6;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.24);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  backdrop-filter: blur(12px);
+}
+
+.scene-counter {
+  top: 18px;
+  left: 18px;
+  padding: 9px 12px;
+  pointer-events: none;
+}
+
+.ambience-toggle {
+  left: 18px;
+  bottom: 18px;
+  padding: 10px 14px;
+}
+
 .scroll-progress {
   position: fixed;
   top: 50%;
@@ -679,6 +807,7 @@ img {
   display: grid;
   gap: 13px;
   transform: translateY(-50%);
+  pointer-events: none;
 }
 
 .scroll-progress button {
@@ -690,6 +819,7 @@ img {
   background: rgba(255, 255, 255, 0.24);
   opacity: 0.6;
   transition: transform 180ms ease, background 180ms ease, opacity 180ms ease;
+  pointer-events: auto;
 }
 
 .scroll-progress button.active {
@@ -855,6 +985,10 @@ img {
     height: 156px;
   }
 
+  .youtube-frame {
+    width: min(100%, 320px);
+  }
+
   .letter-paper p {
     font-size: 22px;
     line-height: 1.85;
@@ -891,6 +1025,11 @@ img {
 
   .scroll-progress {
     display: none;
+  }
+
+  .scene-counter,
+  .ambience-toggle {
+    left: 14px;
   }
 }
 

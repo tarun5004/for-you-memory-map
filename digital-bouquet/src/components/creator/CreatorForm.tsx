@@ -3,6 +3,7 @@
 import { ChangeEvent, FormEvent, useMemo, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { encodePayload } from '@/utils/codec';
+import { extractYouTubeId } from '@/utils/media';
 import { useCloudinary } from '@/hooks/useCloudinary';
 import type { GiftPayload, GiftPhoto } from '@/types/gift';
 
@@ -22,6 +23,7 @@ export default function CreatorForm() {
   const [receiverName, setReceiverName] = useState('');
   const [senderName, setSenderName] = useState('');
   const [spotifyUrl, setSpotifyUrl] = useState('');
+  const [youtubeUrl, setYoutubeUrl] = useState('');
   const [letter, setLetter] = useState(sampleLetter);
   const [pin, setPin] = useState('');
   const [photos, setPhotos] = useState<DraftPhoto[]>([]);
@@ -31,6 +33,7 @@ export default function CreatorForm() {
   const { uploadImage, uploading, error } = useCloudinary();
 
   const trackId = useMemo(() => getSpotifyTrackId(spotifyUrl), [spotifyUrl]);
+  const youtubeId = useMemo(() => extractYouTubeId(youtubeUrl), [youtubeUrl]);
   const uploadedPhotoCount = photos.filter((photo) => !photo.uploading && !photo.failed).length;
 
   const payload = useMemo<GiftPayload>(
@@ -38,13 +41,15 @@ export default function CreatorForm() {
       receiverName: receiverName.trim(),
       senderName: senderName.trim(),
       spotifyUrl: spotifyUrl.trim(),
+      youtubeUrl: youtubeUrl.trim(),
+      youtubeId: youtubeId || undefined,
       letter: letter.trim(),
       pin: pin.length === 4 ? pin : undefined,
       photos: photos
         .filter((photo) => photo.url && !photo.uploading && !photo.failed)
         .map(({ url, caption }) => ({ url, caption: caption.trim() })),
     }),
-    [letter, photos, pin, receiverName, senderName, spotifyUrl],
+    [letter, photos, pin, receiverName, senderName, spotifyUrl, youtubeId, youtubeUrl],
   );
 
   const handleFiles = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -93,6 +98,11 @@ export default function CreatorForm() {
 
     if (pin && !/^\d{4}$/.test(pin)) {
       setFormError('PIN must be exactly 4 digits, or leave it blank.');
+      return;
+    }
+
+    if (youtubeUrl.trim() && !youtubeId) {
+      setFormError('Please enter a valid YouTube video URL or leave it blank.');
       return;
     }
 
@@ -200,6 +210,25 @@ export default function CreatorForm() {
                 allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                 loading="lazy"
               />
+            </div>
+          )}
+
+          <label className="field">
+            <span>YouTube video URL (optional)</span>
+            <input
+              value={youtubeUrl}
+              onChange={(event) => setYoutubeUrl(event.target.value)}
+              placeholder="https://www.youtube.com/watch?v=..."
+            />
+          </label>
+
+          {youtubeId && (
+            <div className="youtube-preview">
+              <img src={`https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`} alt="YouTube preview thumbnail" />
+              <div>
+                <span>YouTube preview ready</span>
+                <small>{youtubeId}</small>
+              </div>
             </div>
           )}
 

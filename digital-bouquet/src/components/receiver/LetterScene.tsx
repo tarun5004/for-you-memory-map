@@ -66,6 +66,13 @@ export default function LetterScene({ letter, senderName }: LetterSceneProps) {
           </svg>
         </motion.div>
         <small className="made-with">made with love</small>
+        <button
+          className="replay-button"
+          type="button"
+          onClick={() => document.getElementById('intro')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+        >
+          watch again
+        </button>
       </div>
     </section>
   );

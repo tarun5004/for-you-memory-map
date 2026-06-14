@@ -19,10 +19,11 @@ export default function MemoryScene({ photo, index, total, senderName }: MemoryS
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
   const imageY = useTransform(scrollYProgress, [0, 1], [-20, 20]);
+  const paletteClass = palettes[index % palettes.length];
 
   return (
     <section
-      className={`story-scene memory-scene ${palettes[index % palettes.length]}`}
+      className={`story-scene memory-scene ${paletteClass}`}
       id={`memory-${index + 1}`}
       ref={ref}
       data-scene-section

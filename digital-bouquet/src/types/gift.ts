@@ -8,6 +8,8 @@ export type GiftPayload = {
   senderName: string;
   photos: Array<GiftPhoto | string>;
   spotifyUrl: string;
+  youtubeUrl?: string;
+  youtubeId?: string;
   letter: string;
   pin?: string;
 };
