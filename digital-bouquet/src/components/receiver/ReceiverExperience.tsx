@@ -49,6 +49,18 @@ export default function ReceiverExperience({ data }: ReceiverExperienceProps) {
     [hasMusic, photos, youtubeId],
   );
 
+  useEffect(() => {
+    if (!unlocked) return;
+    document.documentElement.classList.add('receiver-page');
+    document.body.classList.add('receiver-page');
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+
+    return () => {
+      document.documentElement.classList.remove('receiver-page');
+      document.body.classList.remove('receiver-page');
+    };
+  }, [unlocked]);
+
   const particleConfig = useMemo(() => {
     const active = scenes[activeIndex]?.id || 'intro';
     if (active === 'music') return { density: 18, variant: 'bubbles' as const };
