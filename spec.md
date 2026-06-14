@@ -1,0 +1,21 @@
+# Digital Bouquet Gift — Build Spec
+## Status Tracker
+- [x] Vite scaffold + deps installed
+- [x] Google Fonts linked
+- [x] codec.js utility
+- [x] App.jsx URL router
+- [x] BouquetBuilder.jsx
+- [x] MediaUploader.jsx (Cloudinary)
+- [x] ThemeSelector.jsx
+- [x] SetupForm.jsx + link generator + QR code
+- [x] PinLock.jsx with shake/dissolve animations
+- [x] AnimatedBackground.jsx (4 themes)
+- [x] BouquetReveal.jsx (entrance + float loop)
+- [x] Envelope.jsx (3-stage open sequence)
+- [x] MediaGallery.jsx (Polaroid + Spotify + YouTube)
+- [x] ReceiverView.jsx (wires all receiver components)
+- [x] CreatorDashboard.jsx (wires all creator components)
+- [x] Full design system applied everywhere
+- [x] Mobile responsive (375px to 1440px)
+- [x] End-to-end flow tested
+- [x] Vercel deploy config
