@@ -47,13 +47,14 @@ If deploying this repository from GitHub, set the Vercel project Root Directory 
 digital-bouquet
 ```
 
-Then keep the standard Next.js settings:
+This is required because the Next.js app is not at the repository root. Then keep the standard Next.js settings:
 
 ```text
 Framework Preset: Next.js
 Build Command: npm run build
 Output Directory: .next
 Install Command: npm install
+Development Command: None
 ```
 
 Add the Cloudinary environment variables in Vercel before using uploads in production.

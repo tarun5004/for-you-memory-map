@@ -80,7 +80,7 @@ npm run build
 
 This repository keeps the Next.js app inside `digital-bouquet/`. If Vercel deploys the repository root directly, production can show `404: NOT_FOUND`.
 
-Recommended Vercel project setting:
+Required Vercel project setting:
 
 ```text
 Root Directory: digital-bouquet
@@ -88,6 +88,7 @@ Framework Preset: Next.js
 Build Command: npm run build
 Output Directory: .next
 Install Command: npm install
+Development Command: None
 ```
 
 Also add these Vercel environment variables:
@@ -97,7 +98,7 @@ NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name_here
 NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your_unsigned_preset_here
 ```
 
-The root `vercel.json` also delegates builds to `digital-bouquet/`, but setting Root Directory in Vercel is still the cleanest project setup.
+After saving the Root Directory, redeploy from the Deployments tab and disable build cache if Vercel offers that option.
 
 ## Receiver Flow
 
