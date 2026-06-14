@@ -1,0 +1,7 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "installCommand": "cd digital-bouquet && npm ci",
+  "buildCommand": "cd digital-bouquet && npm run build",
+  "outputDirectory": "digital-bouquet/.next"
+}

@@ -39,6 +39,25 @@ npm run lint
 npm run build
 ```
 
+## Vercel Deployment
+
+If deploying this repository from GitHub, set the Vercel project Root Directory to:
+
+```text
+digital-bouquet
+```
+
+Then keep the standard Next.js settings:
+
+```text
+Framework Preset: Next.js
+Build Command: npm run build
+Output Directory: .next
+Install Command: npm install
+```
+
+Add the Cloudinary environment variables in Vercel before using uploads in production.
+
 ## Notes
 
 - No backend or database is required.
