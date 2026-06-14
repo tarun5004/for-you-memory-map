@@ -1,18 +1,18 @@
 # For You - Cinematic Love Letter
 
-Frontend-only Next.js app for building a private, encoded digital gift link.
+Next.js app for building a private digital gift link with uploaded memories, music, and a cinematic receiver view.
 
 ## Features
 
 - Creator mode at `/`.
-- Receiver mode at `/?payload=...`.
+- Receiver mode at `/?gift=...` for short links, with `?payload=...` kept as fallback.
 - Cloudinary unsigned photo uploads.
 - Up to six uploaded photos.
 - Two-page memory-map collage with scattered Polaroid cards.
 - Spotify and YouTube embeds inside the collage pages.
 - Optional 4-digit PIN gate.
 - Three.js/CSS particles with lightweight fallback behavior.
-- QR code and copyable generated link.
+- Short share links, QR code, and copyable generated link.
 
 ## Environment
 
@@ -21,6 +21,13 @@ Copy `.env.example` to `.env.local` or `.env` and fill in an unsigned Cloudinary
 ```env
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name_here
 NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your_unsigned_preset_here
+NEXT_PUBLIC_SITE_URL=https://your-project.vercel.app
+```
+
+Short links also need Vercel Blob connected to the project. Vercel will add this automatically when you create/connect a Blob store:
+
+```env
+BLOB_READ_WRITE_TOKEN=added_by_vercel_blob
 ```
 
 ## Development
@@ -57,11 +64,11 @@ Install Command: npm install
 Development Command: None
 ```
 
-Add the Cloudinary environment variables in Vercel before using uploads in production.
+Add the Cloudinary environment variables and connect Vercel Blob before using uploads and short links in production.
 
 ## Notes
 
-- No backend or database is required.
-- Gift data is compressed into the generated URL.
+- Short links store gift JSON in Vercel Blob.
+- If Blob is not configured, gift data falls back to a compressed long URL.
 - Photos are uploaded to the configured Cloudinary account.
 - Keep real `.env` files out of git.

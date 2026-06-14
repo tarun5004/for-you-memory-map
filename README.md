@@ -1,13 +1,12 @@
 # For You - Cinematic Love Letter
 
-A frontend-only Next.js app for creating a private digital gift link with uploaded photos, a memory-map collage, Spotify, YouTube, and a handwritten letter experience.
+A Next.js app for creating a private digital gift link with uploaded photos, a memory-map collage, Spotify, YouTube, and a handwritten letter experience.
 
-The creator fills out the form, uploads up to six photos, and generates one encoded URL. The receiver opens that URL and scrolls through a cinematic story: intro, two collage-style memory map pages, and a final letter.
+The creator fills out the form, uploads up to six photos, and generates a short share URL. The receiver opens that URL and scrolls through a cinematic story: intro, two collage-style memory map pages, and a final letter.
 
 ## Highlights
 
-- Frontend-only app: no backend, database, Express server, or MongoDB.
-- Encoded payload links using `lz-string`.
+- Vercel Blob short links with `lz-string` fallback links.
 - Cloudinary unsigned image uploads.
 - Two-page memory-map receiver layout with scattered Polaroid photos.
 - Spotify and YouTube embeds placed inside the collage pages.
@@ -24,6 +23,7 @@ The creator fills out the form, uploads up to six photos, and generates one enco
 - Framer Motion
 - Three.js / React Three Fiber
 - Cloudinary unsigned uploads
+- Vercel Blob
 - `qrcode.react`
 - `lz-string`
 
@@ -53,9 +53,11 @@ Create `digital-bouquet/.env` or `digital-bouquet/.env.local`:
 ```env
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name_here
 NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your_unsigned_preset_here
+NEXT_PUBLIC_SITE_URL=https://your-project.vercel.app
 ```
 
 The Cloudinary upload preset must be unsigned.
+Short links require Vercel Blob connected to the project so `BLOB_READ_WRITE_TOKEN` is available in Vercel.
 
 ## Run
 
@@ -96,7 +98,10 @@ Also add these Vercel environment variables:
 ```env
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name_here
 NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your_unsigned_preset_here
+NEXT_PUBLIC_SITE_URL=https://your-project.vercel.app
 ```
+
+Connect Vercel Blob to the project so Vercel also provides `BLOB_READ_WRITE_TOKEN`.
 
 After saving the Root Directory, redeploy from the Deployments tab and disable build cache if Vercel offers that option.
 
@@ -107,16 +112,17 @@ After saving the Root Directory, redeploy from the Deployments tab and disable b
 3. Memory map page 2 with remaining photos and optional Spotify.
 4. Final letter scene.
 
-If a `payload` query parameter is present, the app renders receiver mode:
+If a `gift` or fallback `payload` query parameter is present, the app renders receiver mode:
 
 ```text
-http://localhost:3000/?payload=...
+http://localhost:3000/?gift=...
 ```
 
-Without `payload`, the app renders creator mode.
+Without `gift` or `payload`, the app renders creator mode.
 
 ## Privacy Notes
 
-- The gift data is encoded into the generated URL.
+- Short-link gift data is stored as JSON in Vercel Blob.
+- If Blob is not configured, the app falls back to encoding gift data into the generated URL.
 - Uploaded photos are stored through the configured Cloudinary account.
 - Do not commit real `.env` values or Cloudinary secrets.

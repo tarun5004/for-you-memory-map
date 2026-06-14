@@ -23,6 +23,7 @@ type StoredCreatorDraft = {
   pin: string;
   photos: GiftPhoto[];
   generatedUrl: string;
+  linkNote: string;
   savedAt: number;
 };
 
@@ -67,6 +68,7 @@ const readStoredDraft = (): StoredCreatorDraft | null => {
       pin: typeof draft.pin === 'string' ? draft.pin.replace(/\D/g, '').slice(0, 4) : '',
       photos: Array.isArray(draft.photos) ? draft.photos : [],
       generatedUrl: typeof draft.generatedUrl === 'string' ? draft.generatedUrl : '',
+      linkNote: typeof draft.linkNote === 'string' ? draft.linkNote : '',
       savedAt: typeof draft.savedAt === 'number' ? draft.savedAt : Date.now(),
     };
   } catch {
@@ -87,7 +89,9 @@ export default function CreatorForm() {
   const [generatedUrl, setGeneratedUrl] = useState('');
   const [copyLabel, setCopyLabel] = useState('Copy');
   const [formError, setFormError] = useState('');
+  const [linkNote, setLinkNote] = useState('');
   const [draftStatus, setDraftStatus] = useState('');
+  const [generating, setGenerating] = useState(false);
   const { uploadImage, uploading, error } = useCloudinary();
 
   const trackId = useMemo(() => getSpotifyTrackId(spotifyUrl), [spotifyUrl]);
@@ -125,6 +129,7 @@ export default function CreatorForm() {
     setPin(draft.pin);
     setPhotos(normalizeStoredPhotos(draft.photos));
     setGeneratedUrl(draft.generatedUrl);
+    setLinkNote(draft.linkNote);
     setDraftStatus('Last draft restored from this browser.');
     restoredDraftRef.current = true;
     draftReadyRef.current = true;
@@ -141,6 +146,7 @@ export default function CreatorForm() {
       letter,
       pin,
       generatedUrl,
+      linkNote,
       savedAt: Date.now(),
       photos: photos
         .filter((photo) => !photo.uploading && !photo.failed && canPersistPhotoUrl(photo.url))
@@ -153,7 +159,7 @@ export default function CreatorForm() {
     } catch {
       setDraftStatus('Draft autosave is unavailable in this browser.');
     }
-  }, [draftStatus, generatedUrl, letter, photos, pin, receiverName, senderName, spotifyUrl, youtubeUrl]);
+  }, [draftStatus, generatedUrl, letter, linkNote, photos, pin, receiverName, senderName, spotifyUrl, youtubeUrl]);
 
   const handleFiles = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []).slice(0, Math.max(0, 6 - photos.length));
@@ -193,12 +199,19 @@ export default function CreatorForm() {
   const clearDraft = () => {
     window.localStorage.removeItem(CREATOR_DRAFT_KEY);
     setGeneratedUrl('');
+    setLinkNote('');
     setDraftStatus('Saved draft cleared.');
   };
 
-  const generate = (event: FormEvent<HTMLFormElement>) => {
+  const createLongPayloadUrl = () => {
+    const encoded = encodePayload(payload);
+    return `${getGiftBaseUrl()}/?payload=${encoded}`;
+  };
+
+  const generate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFormError('');
+    setLinkNote('');
 
     if (!payload.receiverName || !payload.senderName || !payload.letter) {
       setFormError('Receiver, sender, and final letter are required.');
@@ -225,9 +238,32 @@ export default function CreatorForm() {
       return;
     }
 
-    const encoded = encodePayload(payload);
-    setGeneratedUrl(`${getGiftBaseUrl()}/?payload=${encoded}`);
-    setCopyLabel('Copy');
+    setGenerating(true);
+
+    try {
+      const response = await fetch('/api/gifts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const result = (await response.json().catch(() => ({}))) as { id?: string; error?: string };
+
+      if (response.ok && result.id) {
+        setGeneratedUrl(`${getGiftBaseUrl()}/?gift=${result.id}`);
+        setLinkNote('Short link saved. This is the one to share.');
+      } else {
+        setGeneratedUrl(createLongPayloadUrl());
+        setLinkNote(result.error || 'Short link storage is not ready, so a long fallback link was generated.');
+      }
+
+      setCopyLabel('Copy');
+    } catch {
+      setGeneratedUrl(createLongPayloadUrl());
+      setLinkNote('Short link storage could not be reached, so a long fallback link was generated.');
+      setCopyLabel('Copy');
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const copyUrl = async () => {
@@ -369,8 +405,8 @@ export default function CreatorForm() {
 
           {(formError || error) && <p className="form-error">{formError || error}</p>}
 
-          <button className="primary-action" type="submit">
-            Generate Gift Link
+          <button className="primary-action" type="submit" disabled={generating}>
+            {generating ? 'Generating Short Link...' : 'Generate Gift Link'}
           </button>
         </form>
 
@@ -379,6 +415,7 @@ export default function CreatorForm() {
             <div>
               <h2>Your link is ready</h2>
               <p>{generatedUrl}</p>
+              {linkNote && <p className="link-note">{linkNote}</p>}
               <div className="result-actions">
                 <button type="button" onClick={copyUrl}>
                   {copyLabel}
