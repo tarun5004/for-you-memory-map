@@ -30,6 +30,7 @@ const sampleLetter =
   'I made this little place so our memories could live somewhere soft.\n\nEvery photo here is a tiny proof that ordinary days can turn into something I keep returning to.\n\nThank you for being you.';
 
 const CREATOR_DRAFT_KEY = 'for-you-creator-draft-v1';
+const MAX_QR_CODE_TEXT_LENGTH = 1800;
 
 const getSpotifyTrackId = (url: string) => url.match(/track\/([a-zA-Z0-9]+)/)?.[1] ?? '';
 
@@ -225,7 +226,7 @@ export default function CreatorForm() {
     }
 
     const encoded = encodePayload(payload);
-    setGeneratedUrl(`${getGiftBaseUrl()}/?payload=${encodeURIComponent(encoded)}`);
+    setGeneratedUrl(`${getGiftBaseUrl()}/?payload=${encoded}`);
     setCopyLabel('Copy');
   };
 
@@ -235,6 +236,8 @@ export default function CreatorForm() {
     setCopyLabel('Copied');
     window.setTimeout(() => setCopyLabel('Copy'), 1400);
   };
+
+  const canRenderQrCode = generatedUrl.length > 0 && generatedUrl.length <= MAX_QR_CODE_TEXT_LENGTH;
 
   return (
     <main className="creator-shell">
@@ -385,7 +388,14 @@ export default function CreatorForm() {
                 </button>
               </div>
             </div>
-            <QRCodeSVG value={generatedUrl} size={132} bgColor="#fffaf4" fgColor="#4a3740" />
+            {canRenderQrCode ? (
+              <QRCodeSVG value={generatedUrl} size={132} bgColor="#fffaf4" fgColor="#4a3740" level="L" />
+            ) : (
+              <div className="qr-fallback">
+                <span>QR skipped</span>
+                <small>This link is too long for a reliable QR code. Copy the link instead.</small>
+              </div>
+            )}
           </section>
         )}
       </section>
